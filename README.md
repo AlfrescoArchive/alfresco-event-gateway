@@ -1,1 +1,2 @@
-# alfresco-event-gateway
+# alfresco-enterprise-event-gateway
+Alfresco Enterprise Event Gateway
