@@ -4,12 +4,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.alfresco</groupId>
-    <artifactId>alfresco-enterprise-event-gateway</artifactId>
+    <artifactId>alfresco-event-gateway</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>alfresco-enterprise-event-gateway</name>
-    <description>Alfresco Enterprise Event gateway</description>
+    <name>alfresco-event-gateway</name>
+    <description>Alfresco Event gateway</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -29,9 +29,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:https://git.alfresco.com/platform-services/alfresco-enterprise-event-gateway.git</connection>
-        <developerConnection>scm:git:https://git.alfresco.com/platform-services/alfresco-enterprise-event-gateway.git</developerConnection>
-        <url>https://git.alfresco.com/platform-services/alfresco-enterprise-event-gateway</url>
+        <connection>scm:git:https://www.github.com/alfresco/alfresco-event-gateway.git</connection>
+        <developerConnection>scm:git:https://www.github.com/alfresco/alfresco-event-gateway.git</developerConnection>
+        <url>https://www.github.com/alfresco/alfresco-event-gateway</url>
         <tag>HEAD</tag>
     </scm>
 
