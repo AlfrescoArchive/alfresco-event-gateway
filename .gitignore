@@ -30,3 +30,4 @@ target/
 .factorypath
 .project
 .settings/
+.vscode/
