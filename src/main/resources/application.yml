@@ -1,0 +1,23 @@
+messaging:
+  from:
+    activemq:
+      host: localhost
+      port: 5672
+      # Comma separated address. The format is host1:port1,host2:port2
+      addresses: ${messaging.from.activemq.host}:${messaging.from.activemq.port}
+      url: failover:(amqp://${messaging.from.activemq.addresses})?timeout=3000&startupMaxReconnectAttempts=0
+      fromRoute:
+        topicName: alfresco.events.source
+        uri: amqpFromConnection:topic:${messaging.from.activemq.fromRoute.topicName}
+
+
+  to:
+    activemq:
+      host: localhost
+      port: 5672
+      # Comma separated address. The format is host1:port1,host2:port2
+      addresses: ${messaging.to.activemq.host}:${messaging.to.activemq.port}
+      url: failover:(amqp://${messaging.to.activemq.addresses})?timeout=3000&startupMaxReconnectAttempts=0
+      toRoute:
+        topicName: alfresco.events.allEvents
+        uri: amqpToConnection:topic:${messaging.to.activemq.toRoute.topicName}
