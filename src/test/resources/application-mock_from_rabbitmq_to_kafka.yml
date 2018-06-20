@@ -1,0 +1,30 @@
+messaging:
+    from:
+        rabbitmq:
+            host: localhost
+            port: 5672
+            username: guest
+            password: guest
+            virtualHost: "dbp"
+            fromRoute:
+                topicName: start
+                uri: direct:${messaging.from.rabbitmq.fromRoute.topicName}
+    to:
+        kafka:
+            host: localhost
+            port: 9092
+            # Comma separated address. The format is host1:port1,host2:port2
+            addresses: ${messaging.to.kafka.host}:${messaging.to.kafka.port}
+            toRoute:
+                branches:
+                    - onType: org.alfresco.event.model.internal.ContentInternalEvent
+                      topicName: alfresco.events.target.kafka.testContent
+                      uri: mock:${messaging.to.kafka.toRoute.branches[0].topicName}
+                    - onType: org.alfresco.event.model.internal.ProcessInternalEvent
+                      topicName: alfresco.events.target.kafka.testProcess
+                      uri: mock:${messaging.to.kafka.toRoute.branches[1].topicName}
+                defaultBranch:
+                    topicName: alfresco.events.target.kafka.testBaseEvent
+                    uri: mock:${messaging.to.kafka.toRoute.defaultBranch.topicName}
+                topicName: alfresco.events.target.kafka.testAllEvents
+                uri: mock:${messaging.to.kafka.toRoute.topicName}
