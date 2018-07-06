@@ -1,0 +1,22 @@
+messaging:
+    from:
+        activemq:
+            host: localhost
+            port: 5672
+            # Comma separated address. The format is host1:port1,host2:port2
+            addresses: ${messaging.from.activemq.host}:${messaging.from.activemq.port}
+            url: amqp://${messaging.from.activemq.addresses}
+            fromRoute:
+                topicName: start
+                uri: direct:${messaging.from.activemq.fromRoute.topicName}
+
+    to:
+        activemq:
+            host: localhost
+            port: 5672
+            # Comma separated address. The format is host1:port1,host2:port2
+            addresses: ${messaging.to.activemq.host}:${messaging.to.activemq.port}
+            url: amqp://${messaging.to.activemq.addresses}
+            toRoute:
+                topicName: alfresco.events.target.activemq.testAllEvents
+                uri: mock:${messaging.to.activemq.toRoute.topicName}
