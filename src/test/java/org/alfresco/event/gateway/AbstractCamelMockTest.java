@@ -4,46 +4,40 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
-
+ *
  *    http://www.apache.org/licenses/LICENSE-2.0
-
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.alfresco.event.gateway;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-import org.alfresco.event.databind.EventObjectMapperFactory;
 import org.alfresco.event.gateway.config.ToRouteProperties;
-import org.alfresco.event.gateway.config.ToRouteProperties.Branch;
-import org.alfresco.event.model.BaseEvent;
-import org.alfresco.event.model.internal.BaseInternalEvent;
-import org.alfresco.event.model.internal.ContentInternalEvent;
-import org.alfresco.event.model.internal.ProcessInternalEvent;
-import org.alfresco.fakeeventgenerator.CamelMessageProducer;
-import org.alfresco.fakeeventgenerator.EventMaker;
-import org.alfresco.fakeeventgenerator.EventMaker.EventInstance;
 import org.apache.camel.CamelContext;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.Exchange;
+import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.skyscreamer.jsonassert.Customization;
+import org.skyscreamer.jsonassert.JSONAssert;
+import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -52,20 +46,23 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @SpringBootTest
 public abstract class AbstractCamelMockTest
 {
-    protected static final Class<ContentInternalEvent> BRANCH_ON_TYPE_CONTENT_CREATED = ContentInternalEvent.class;
-    protected static final Class<ProcessInternalEvent> BRANCH_ON_TYPE_PROCESS_STARTED = ProcessInternalEvent.class;
-
-    private static final ObjectMapper MAPPER = EventObjectMapperFactory.createInstance();
     private static final String START_ROUTE = "direct:start";
+    private static final CustomComparator CUSTOM_JSON_COMPARATOR = new CustomComparator(JSONCompareMode.LENIENT,
+                new Customization("streamPosition", (obj1, obj2) -> true));
 
     @Autowired
     protected CamelContext camelContext;
-    private CamelMessageProducer producer;
+
+    @EndpointInject(uri = START_ROUTE)
+    private ProducerTemplate producer;
+
+    private MockEndpoint mockEndpoint;
 
     @Before
-    public void setup()
+    public void setUp()
     {
-        producer = new CamelMessageProducer(camelContext, START_ROUTE);
+        // Construct MockEndpoint
+        mockEndpoint = getMockEndpoint(getToRoute().getUri());
     }
 
     @After
@@ -75,99 +72,117 @@ public abstract class AbstractCamelMockTest
     }
 
     @Test
-    public void testToRoute() throws Exception
+    public void testRoute_NodeAddedEvent() throws Exception
     {
-        // Construct MockEndpoint
-        MockEndpoint mockAllEventsEndpoint = getMockEndpoint(getToRoute().getUri());
-
-        // Generate random events
-        BaseInternalEvent<?> event1 = EventMaker.getRandomEvent();
-        BaseInternalEvent<?> event2 = EventMaker.getRandomEvent();
-
-        // Set the expected messages
-        mockAllEventsEndpoint.expectedBodiesReceived(Arrays.asList(MAPPER.writeValueAsString(event1), MAPPER.writeValueAsString(event2)));
         // Set the expected number of messages
-        mockAllEventsEndpoint.expectedMessageCount(2);
+        mockEndpoint.expectedMessageCount(1);
 
-        // Send the 1st event
-        sendEvent(event1);
-        // Send the 2nd event
-        sendEvent(event2);
+        // Send the event
+        sendEvent(TestHelper.RAW_NODE_ADDED_EVENT);
+        // Check the expected body
+        checkExpectedJsonBody(TestHelper.PUBLIC_NODE_ADDED_EVENT, getFirstBody(mockEndpoint));
 
         // Checks that the received message count is equal to the number of messages sent
-        // Also, checks the received message body is equal to the sent message
-        mockAllEventsEndpoint.assertIsSatisfied();
+        mockEndpoint.assertIsSatisfied();
     }
 
     @Test
-    public void testToRouteWithBranching() throws Exception
+    public void testRoute_PermissionEvents() throws Exception
     {
-        List<Branch> branches = getToRoute().getBranches();
-        // Construct MockEndpoint for branching
-        assertEquals("2 branches should be defined.", 2, branches.size());
-        MockEndpoint mockContentCreatedEndpoint = getMockEndpoint(branches.get(0).getUri());
-        MockEndpoint mockProcessStartedEndpoint = getMockEndpoint(branches.get(1).getUri());
-        MockEndpoint mockDefaultEndpoint = getMockEndpoint(getToRoute().getDefaultBranch().getUri());
-
-        // Construct MockEndpoint for all events (no branching)
-        MockEndpoint mockAllEventsEndpoint = getMockEndpoint(getToRoute().getUri());
-
-        // Generate events
-        ContentInternalEvent contentCreatedEvent = EventInstance.CONTENT_CREATED.getEvent();
-        ProcessInternalEvent processStartedEvent = EventInstance.PROCESS_STARTED.getEvent();
-        BaseInternalEvent<?> baseEvent = EventInstance.BASE_EVENT.getEvent();
-
-        // Set the expected message for the ContentCreated event type
-        mockContentCreatedEndpoint.expectedBodiesReceived(Collections.singletonList(MAPPER.writeValueAsString(contentCreatedEvent)));
         // Set the expected number of messages
-        mockContentCreatedEndpoint.expectedMessageCount(1);
+        mockEndpoint.expectedMessageCount(3);
 
-        // Set the expected message for the ProcessStarted event type
-        mockProcessStartedEndpoint.expectedBodiesReceived(Collections.singletonList(MAPPER.writeValueAsString(processStartedEvent)));
-        // Set the expected number of messages
-        mockProcessStartedEndpoint.expectedMessageCount(1);
+        // Send the events
+        sendEvent(TestHelper.RAW_PERMISSION_GRANTED_EVENT);
+        sendEvent(TestHelper.RAW_INHERIT_PERMISSION_DISABLED_EVENT);
+        sendEvent(TestHelper.RAW_INHERIT_PERMISSION_ENABLED_EVENT);
 
-        // Set the expected message for the BaseEvent event type
-        mockDefaultEndpoint.expectedBodiesReceived(Collections.singletonList(MAPPER.writeValueAsString(baseEvent)));
-        // Set the expected number of messages
-        mockDefaultEndpoint.expectedMessageCount(1);
-
-        // Set the expected messages
-        mockAllEventsEndpoint.expectedBodiesReceived(Arrays.asList(MAPPER.writeValueAsString(contentCreatedEvent),
-                    MAPPER.writeValueAsString(processStartedEvent), MAPPER.writeValueAsString(baseEvent)));
-        // Set the expected number of messages
-        mockAllEventsEndpoint.expectedMessageCount(3);
-
-        // Send the 1st event
-        sendEvent(contentCreatedEvent);
-        // Send the 2nd event
-        sendEvent(processStartedEvent);
-        // Send the 3rd event
-        sendEvent(baseEvent);
-
-        // Check headers
-        mockContentCreatedEndpoint.message(0).header(CamelMessageProducer.HEADER_NAME).isEqualTo(ContentInternalEvent.class.getName());
-        mockProcessStartedEndpoint.message(0).header(CamelMessageProducer.HEADER_NAME).isEqualTo(ProcessInternalEvent.class.getName());
-        mockDefaultEndpoint.message(0).header(CamelMessageProducer.HEADER_NAME).isEqualTo(BaseInternalEvent.class.getName());
+        // Check the expected bodies
+        checkExpectedJsonBody(TestHelper.PUBLIC_PERMISSION_GRANTED_EVENT, getBody(mockEndpoint, 0));
+        checkExpectedJsonBody(TestHelper.Public_INHERIT_PERMISSION_DISABLED_EVENT, getBody(mockEndpoint, 1));
+        checkExpectedJsonBody(TestHelper.PUBLIC_INHERIT_PERMISSION_ENABLED_EVENT, getBody(mockEndpoint, 2));
 
         // Checks that the received message count is equal to the number of messages sent
-        // Also, checks the received message body is equal to the sent message
-        mockContentCreatedEndpoint.assertIsSatisfied();
-        mockProcessStartedEndpoint.assertIsSatisfied();
-        mockDefaultEndpoint.assertIsSatisfied();
-        mockAllEventsEndpoint.assertIsSatisfied();
+        mockEndpoint.assertIsSatisfied();
     }
 
-    protected void sendEvent(BaseInternalEvent<?> message) throws Exception
+    @Test
+    public void testRoute_AuthorityEvents() throws Exception
+    {
+        // Set the expected number of messages
+        mockEndpoint.expectedMessageCount(3);
+
+        // Send the events
+        sendEvent(TestHelper.RAW_AUTHORITY_ADDED_TO_GROUP_EVENT);
+        sendEvent(TestHelper.RAW_AUTHORITY_REMOVED_FROM_GROUP_EVENT);
+        sendEvent(TestHelper.RAW_GROUP_DELETED_EVENT);
+
+        // Check the expected bodies
+        checkExpectedJsonBody(TestHelper.PUBLIC_AUTHORITY_ADDED_TO_GROUP_EVENT, getBody(mockEndpoint, 0));
+        checkExpectedJsonBody(TestHelper.PUBLIC_AUTHORITY_REMOVED_FROM_GROUP_EVENT, getBody(mockEndpoint, 1));
+        checkExpectedJsonBody(TestHelper.PUBLIC_GROUP_DELETED_EVENT, getBody(mockEndpoint, 2));
+
+        // Checks that the received message count is equal to the number of messages sent
+        mockEndpoint.assertIsSatisfied();
+    }
+
+    @Test
+    public void testRoute_RepositoryEvents() throws Exception
+    {
+        // Set the expected number of messages
+        mockEndpoint.expectedMessageCount(2);
+
+        // Send the events
+        sendEvent(TestHelper.RAW_TRANSACTION_COMMITTED_EVENT);
+        sendEvent(TestHelper.RAW_TRANSACTION_ROLLED_BACK_EVENT);
+
+        // Check the expected bodies
+        checkExpectedJsonBody(TestHelper.PUBLIC_TRANSACTION_COMMITTED_EVENT, getBody(mockEndpoint, 0));
+        checkExpectedJsonBody(TestHelper.PUBLIC_TRANSACTION_ROLLED_BACK_EVENT, getBody(mockEndpoint, 1));
+
+        // Checks that the received message count is equal to the number of messages sent
+        mockEndpoint.assertIsSatisfied();
+    }
+
+    protected void sendEvent(Object message)
     {
         assertNotNull(message);
-        producer.send(message);
+        producer.sendBody(message);
     }
 
     protected MockEndpoint getMockEndpoint(String route)
     {
         assertNotNull("The route uri cannot be null.", route);
         return camelContext.getEndpoint(route, MockEndpoint.class);
+    }
+
+    protected String getFirstBody(MockEndpoint mockEndpoint)
+    {
+        return getBody(mockEndpoint, 0);
+    }
+
+    protected String getBody(MockEndpoint mockEndpoint, int index)
+    {
+        List<Exchange> list = mockEndpoint.getExchanges();
+        if (list.size() <= index)
+        {
+            return null;
+        }
+        return new String(((byte[]) list.get(index).getIn().getBody()), StandardCharsets.UTF_8);
+    }
+
+    private void checkExpectedJsonBody(String expectedJsonBody, String actualJsonBody) throws Exception
+    {
+        // Check the field exists, as we are going to ignore it
+        checkFieldExists(actualJsonBody, "streamPosition");
+        // Check expected body - We ignore the streamPosition field as it is dynamically generated
+        JSONAssert.assertEquals(expectedJsonBody, actualJsonBody, CUSTOM_JSON_COMPARATOR);
+    }
+
+    protected void checkFieldExists(String json, String field)
+    {
+        assertNotNull(json);
+        assertTrue("The field \"" + field + "\" does not exist.", json.indexOf(field) > 0);
     }
 
     protected abstract ToRouteProperties getToRoute();

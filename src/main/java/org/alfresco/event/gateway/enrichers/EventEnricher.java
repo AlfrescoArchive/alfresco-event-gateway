@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.alfresco.event.gateway;
+package org.alfresco.event.gateway.enrichers;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.alfresco.event.model.EventV1;
+import org.alfresco.event.model.ResourceV1;
+import org.alfresco.events.types.Event;
+import org.apache.commons.lang3.RandomStringUtils;
 
 /**
+ * Enriches an event.
+ *
  * @author Jamal Kaabi-Mofrad
  */
-@SpringBootApplication
-public class EventGatewayApplication
+public interface EventEnricher<T extends Event, R extends ResourceV1>
 {
-    public static void main(String[] args)
+
+    EventV1<R> enrich(T event);
+
+    default String generateStreamPosition()
     {
-        SpringApplication.run(EventGatewayApplication.class, args);
+        String str = RandomStringUtils.randomAlphanumeric(6).toLowerCase();
+        return System.currentTimeMillis() + "-" + str;
     }
 }

@@ -15,17 +15,27 @@
  */
 package org.alfresco.event.gateway;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.apache.camel.Exchange;
+import org.apache.camel.Predicate;
 
 /**
+ * A Predicate to check if the given object is of a particular type.
+ *
  * @author Jamal Kaabi-Mofrad
  */
-@SpringBootApplication
-public class EventGatewayApplication
+public class TypePredicate implements Predicate
 {
-    public static void main(String[] args)
+    private Class<?> requiredType;
+
+    public TypePredicate(Class<?> requiredType)
     {
-        SpringApplication.run(EventGatewayApplication.class, args);
+        this.requiredType = requiredType;
+    }
+
+    @Override
+    public boolean matches(Exchange exchange)
+    {
+        Object body = exchange.getIn().getBody();
+        return requiredType.isInstance(body);
     }
 }

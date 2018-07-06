@@ -13,19 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.alfresco.event.gateway;
+package org.alfresco.event.gateway.enrichers;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.util.Collections;
+
+import org.alfresco.event.model.EventV1;
+import org.alfresco.event.model.ResourceV1;
+import org.alfresco.events.types.RepositoryEvent;
+import org.springframework.stereotype.Component;
 
 /**
  * @author Jamal Kaabi-Mofrad
  */
-@SpringBootApplication
-public class EventGatewayApplication
+@Component
+public class RepositoryEventEnricher implements EventEnricher<RepositoryEvent, ResourceV1>
 {
-    public static void main(String[] args)
+    @Override
+    public EventV1<ResourceV1> enrich(RepositoryEvent event)
     {
-        SpringApplication.run(EventGatewayApplication.class, args);
+        ResourceV1 resource = new ResourceV1(event.getId(), Collections.emptyList());
+
+        return new EventV1<>(event.getType(), generateStreamPosition(), event.getUsername(), resource);
     }
 }
