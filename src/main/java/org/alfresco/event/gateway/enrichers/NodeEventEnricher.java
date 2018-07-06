@@ -38,6 +38,6 @@ public class NodeEventEnricher implements EventEnricher<NodeEvent, NodeResourceV
                     parentId -> new HierarchyEntry(parentId, HIERARCHY_ENTRY_TYPE));
         NodeResourceV1 contentResource = new NodeResourceV1(event.getId(), hierarchyEntries, event.getNodeType());
 
-        return new EventV1<>(event.getType(), getStreamPosition(), event.getUsername(), contentResource);
+        return new EventV1<>(event.getType(), generateStreamPosition(), event.getUsername(), contentResource);
     }
 }

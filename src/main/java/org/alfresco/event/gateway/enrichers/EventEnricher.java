@@ -30,7 +30,7 @@ public interface EventEnricher<T extends Event, R extends ResourceV1>
 
     EventV1<R> enrich(T event);
 
-    default String getStreamPosition()
+    default String generateStreamPosition()
     {
         String str = RandomStringUtils.randomAlphanumeric(6).toLowerCase();
         return System.currentTimeMillis() + "-" + str;

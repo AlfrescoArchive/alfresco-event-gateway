@@ -33,6 +33,6 @@ public class RepositoryEventEnricher implements EventEnricher<RepositoryEvent, R
     {
         ResourceV1 resource = new ResourceV1(event.getId(), Collections.emptyList());
 
-        return new EventV1<>(event.getType(), getStreamPosition(), event.getUsername(), resource);
+        return new EventV1<>(event.getType(), generateStreamPosition(), event.getUsername(), resource);
     }
 }

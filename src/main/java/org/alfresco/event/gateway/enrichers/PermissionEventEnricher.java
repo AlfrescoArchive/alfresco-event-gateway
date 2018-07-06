@@ -51,6 +51,6 @@ public class PermissionEventEnricher implements EventEnricher<PermissionsEvent, 
             resource.setAsync(((InheritPermissionsDisabledEvent) event).isAsync());
         }
 
-        return new EventV1<>(event.getType(), getStreamPosition(), event.getUsername(), resource);
+        return new EventV1<>(event.getType(), generateStreamPosition(), event.getUsername(), resource);
     }
 }

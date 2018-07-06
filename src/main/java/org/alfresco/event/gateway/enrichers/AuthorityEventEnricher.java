@@ -48,6 +48,6 @@ public class AuthorityEventEnricher implements EventEnricher<AuthorityEvent, Aut
             resource.setCascade(((GroupDeletedEvent) event).isCascade());
         }
 
-        return new EventV1<>(event.getType(), getStreamPosition(), event.getUsername(), resource);
+        return new EventV1<>(event.getType(), generateStreamPosition(), event.getUsername(), resource);
     }
 }
