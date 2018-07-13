@@ -26,6 +26,7 @@
         <dependency.camel.version>2.22.0</dependency.camel.version>
         <dependency.repository-events.version>1.2.13</dependency.repository-events.version>
         <dependency.event-model.version>0.0.1-SNAPSHOT</dependency.event-model.version>
+        <dependency.commons.validator.version>1.6</dependency.commons.validator.version>
     </properties>
 
     <scm>
@@ -112,6 +113,11 @@
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>3.7</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>${dependency.commons.validator.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
