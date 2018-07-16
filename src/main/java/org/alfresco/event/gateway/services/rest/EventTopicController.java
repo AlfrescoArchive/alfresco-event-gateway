@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
  public class EventTopicController
  {
     AmqpToProperties amqpToProperties;
-    ExternalPropertiesConfig externalPropertiesConfig;
+    private ExternalPropertiesConfig externalPropertiesConfig;
 
     @Autowired
     public EventTopicController(AmqpToProperties amqpToProperties, ExternalPropertiesConfig externalPropertiesConfig)
@@ -47,7 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
         this.externalPropertiesConfig = externalPropertiesConfig;
     }
 
-    @RequestMapping(value="/event", method=RequestMethod.OPTIONS)
+    @RequestMapping(value="/events", method=RequestMethod.OPTIONS)
     @ResponseBody
     public ResponseEntity<?> getEventGlobalTopic()
     {

@@ -41,7 +41,7 @@ public class ExternalPropertiesConfig
     private String port;
 
     @Autowired
-    AmqpToProperties amqpToProperties;
+    private AmqpToProperties amqpToProperties;
 
     public String getExternalUrl()
     {
