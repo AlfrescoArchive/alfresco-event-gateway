@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/public/events/versions/1")
  public class EventTopicController
  {
-    AmqpToProperties amqpToProperties;
+    private AmqpToProperties amqpToProperties;
     private ExternalPropertiesConfig externalPropertiesConfig;
 
     @Autowired
