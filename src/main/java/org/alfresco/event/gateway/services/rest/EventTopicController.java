@@ -16,7 +16,7 @@
 
 package org.alfresco.event.gateway.services.rest;
 
-import org.alfresco.event.gateway.config.ExternalProperties;
+import org.alfresco.event.gateway.config.ExternalPropertiesConfig;
 import org.alfresco.event.gateway.config.amqp.AmqpToProperties;
 import org.alfresco.event.gateway.services.EventTopicEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +34,24 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Jared Ottley
  */
 @RestController
-@RequestMapping("/api/public/event-gateway/versions/1")
+@RequestMapping("/api/public/events/versions/1")
  public class EventTopicController
  {
-    @Autowired
     AmqpToProperties amqpToProperties;
+    ExternalPropertiesConfig externalPropertiesConfig;
 
     @Autowired
-    ExternalProperties externalProperties;
+    public EventTopicController(AmqpToProperties amqpToProperties, ExternalPropertiesConfig externalPropertiesConfig)
+    {
+        this.amqpToProperties = amqpToProperties;
+        this.externalPropertiesConfig = externalPropertiesConfig;
+    }
 
-    @RequestMapping(value="/eventTopic", method=RequestMethod.OPTIONS)
+    @RequestMapping(value="/event", method=RequestMethod.OPTIONS)
     @ResponseBody
     public ResponseEntity<?> getEventGlobalTopic()
     {
-        EventTopicEntity eventTopicEntity = new EventTopicEntity(amqpToProperties.getToRoute().getTopicName(), externalProperties.getExternalUrl());
+        EventTopicEntity eventTopicEntity = new EventTopicEntity(amqpToProperties.getToRoute().getTopicName(), externalPropertiesConfig.getExternalUrl());
         return new ResponseEntity<>(JsonBodyContentEntry.wrap(eventTopicEntity),HttpStatus.OK);
     }
 

@@ -16,9 +16,11 @@
 
 package org.alfresco.event.gateway.config;
 
+import org.alfresco.event.gateway.config.amqp.AmqpToProperties;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,36 +31,40 @@ import org.springframework.context.annotation.Configuration;
  * @author Jared Ottley
  */
 @Configuration
-public class ExternalProperties
+public class ExternalPropertiesConfig
 {
-    private static final Logger logger = LoggerFactory.getLogger(ExternalProperties.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExternalPropertiesConfig.class);
     
     @Value("${messaging.external.host}")
     private String host;
     @Value("${messaging.external.port}")
     private String port;
 
+    @Autowired
+    AmqpToProperties amqpToProperties;
+
     public String getExternalUrl()
     {
-        if (!host.isEmpty() && !port.isEmpty())
+        String externalUrl;
+        
+        if (host.isEmpty() && port.isEmpty())
         {
-            String externalUrl = "amqp://" + host + ":" + port;
-            
-            String[] schemes = {"amqp"};
-            UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_LOCAL_URLS);
-
-            if (urlValidator.isValid(externalUrl))
-            {
-                return externalUrl;
-            }
-            else
-            {
-                logger.info("The external url is invalid: " + externalUrl);
-                return null;
-            }
+            externalUrl = "amqp://" + amqpToProperties.getHost() + ":" + amqpToProperties.getPort();
+        }
+        else
+        {
+            externalUrl = "amqp://" + host + ":" + port;
         }
 
-        logger.info("No external host or port provided.");
-        return null;
+        String[] schemes = {"amqp"};
+        UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_LOCAL_URLS);
+
+        if (!urlValidator.isValid(externalUrl))
+        {
+            logger.info("The external url is invalid: " + externalUrl);
+            return null;
+        }
+
+        return externalUrl;
     }
 }

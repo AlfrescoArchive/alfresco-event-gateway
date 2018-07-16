@@ -20,52 +20,48 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration()
-@TestPropertySource(locations={"classpath:application.properties"})
-public class ExternalPropertiesTest
-{
-    @Configuration
-    static class ContextConfiguration
-    {
-        @Bean
-        public ExternalProperties externalProperties()
-        {
-            return new ExternalProperties();
-        }
-    }
-    
+@SpringBootTest
+public class ExternalPropertiesConfigTest
+{    
     @Autowired
-    ExternalProperties externalProperties;
+    ExternalPropertiesConfig externalPropertiesConfig;
 
     @Test
     public void getExternalUrl()
     {
-        assertEquals("amqp://localhost:5672", externalProperties.getExternalUrl());
+        assertEquals("amqp://localhost:5672", externalPropertiesConfig.getExternalUrl());
+    }
+
+    @Test
+    //Should default to values provided by AmqpToProperties
+    public void propertiesNotSet()
+    {
+        ReflectionTestUtils.setField(externalPropertiesConfig, "host", "");
+        ReflectionTestUtils.setField(externalPropertiesConfig, "port", "");
+        
+        assertEquals("amqp://localhost:5672", externalPropertiesConfig.getExternalUrl());
     }
 
     @Test
     public void OverrideGetExternalUrl()
     {
-        ReflectionTestUtils.setField(externalProperties, "host", "alfresco.com");
-        ReflectionTestUtils.setField(externalProperties, "port", "6161");
+        ReflectionTestUtils.setField(externalPropertiesConfig, "host", "alfresco.com");
+        ReflectionTestUtils.setField(externalPropertiesConfig, "port", "6161");
         
-        assertEquals("amqp://alfresco.com:6161", externalProperties.getExternalUrl());
+        assertEquals("amqp://alfresco.com:6161", externalPropertiesConfig.getExternalUrl());
     }
 
     @Test
     public void InvalidHostGetExternalUrl()
     {
-        ReflectionTestUtils.setField(externalProperties, "host", "event:gateway");
-        ReflectionTestUtils.setField(externalProperties, "port", "6161");
+        ReflectionTestUtils.setField(externalPropertiesConfig, "host", "event:gateway");
+        ReflectionTestUtils.setField(externalPropertiesConfig, "port", "6161");
         
-        assertEquals(null, externalProperties.getExternalUrl());
+        assertEquals(null, externalPropertiesConfig.getExternalUrl());
     }
 }
