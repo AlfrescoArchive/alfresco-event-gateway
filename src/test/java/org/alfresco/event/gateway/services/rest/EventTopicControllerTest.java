@@ -22,7 +22,7 @@ public class EventTopicControllerTest
     @Test
     public void getEventGlobalTopicFails() throws Exception
     {
-        ResponseEntity<?> response = eventTopicController.getEventGlobalTopic();        
+        ResponseEntity<?> response = eventTopicController.getEventGlobalTopic();
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals("alfresco.events.allEvents", ((EventTopicEntity)((JsonBodyContentEntry<?>)response.getBody()).getEntry()).getEventTopic());
