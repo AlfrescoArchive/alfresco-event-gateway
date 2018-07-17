@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Jamal Kaabi-Mofrad
  */
 @RestController
-@RequestMapping("/alfresco/api/messaging/versions/1")
+@RequestMapping("/camel")
 public class MetricsController
 {
     private final CamelContext camelContext;
