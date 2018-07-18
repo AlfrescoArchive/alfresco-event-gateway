@@ -42,4 +42,4 @@ The response to this request will contain the eventTopic name and brokerUri as j
 
 The developer can then use this information to connect their client to this Event Gateway topic.
 
-Note: The community version of the Event Gateway provides a single topic for all events generated in the community Digital Business Platform.
+Note: The community version of the Event Gateway provides a single topic for all events.
