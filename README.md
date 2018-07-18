@@ -14,20 +14,20 @@ The external hostname and port can be set using standard spring property overrid
 
 `messaging.external.port`
 
-For example, you can use environment varaibles
+For example, you can use environment variables
 
 `MESSAGING_EXTERNAL_HOST=my.testdomain.com`
 
 `MESSAGING_EXTERNAL_PORT=5672`
 
-If these properties are not set, the Event Gateway will default to the host and port proivded as part of the `To Route` for the ActiveMQ insance.
+If these properties are not set, the Event Gateway will default to the host and port provided as part of the `To Route` for the ActiveMQ instance.
 
 # API Endpoints
 
-## Event Topic Discovery
-As a developer you will want to know how to subscribe to event topics available on the Event Gateway.  The community version of the Event Gateway provides a single topic for all events generated in the community Digital Business Platform. To discover the brokerURL and topic name a developer can make an HTTP OPTIONS request to
+## Event Subscription
+As a developer you will want to know how to subscribe to event topics available on the Event Gateway. To subscribe to events and receive the broker URL and topic name a developer can make an HTTP OPTIONS request to
 
-`http://<event-gateway-host>/api/public/event-gateway/versions/1/event`
+`http://<event-gateway-host>/api/public/events/versions/1/events`
 
 The response to this request will contain the eventTopic name and brokerUri as json. For example
 
@@ -41,3 +41,5 @@ The response to this request will contain the eventTopic name and brokerUri as j
 ```
 
 The developer can then use this information to connect their client to this Event Gateway topic.
+
+Note: The community version of the Event Gateway provides a single topic for all events generated in the community Digital Business Platform.
