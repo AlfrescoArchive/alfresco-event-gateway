@@ -17,10 +17,7 @@ package org.alfresco.event.gateway;
 
 import org.alfresco.event.gateway.config.FromRouteProperties;
 import org.alfresco.event.gateway.config.ToRouteProperties;
-import org.alfresco.events.types.NodeEvent;
-import org.alfresco.events.types.RepositoryEvent;
-import org.alfresco.events.types.authority.AuthorityEvent;
-import org.alfresco.events.types.permission.PermissionsEvent;
+import org.alfresco.event.model.EventV1;
 import org.apache.camel.Predicate;
 import org.apache.camel.builder.RouteBuilder;
 import org.slf4j.Logger;
@@ -38,10 +35,7 @@ public class GatewayRoute extends RouteBuilder
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(GatewayRoute.class);
 
-    private static final Predicate IS_PERMISSION_EVENT = new TypePredicate(PermissionsEvent.class);
-    private static final Predicate IS_CONTENT_EVENT = new TypePredicate(NodeEvent.class);
-    private static final Predicate IS_AUTHORITY_EVENT = new TypePredicate(AuthorityEvent.class);
-    private static final Predicate IS_REPOSITORY_EVENT = new TypePredicate(RepositoryEvent.class);
+    private static final Predicate IS_EVENT_V1 = new TypePredicate(EventV1.class);
 
     private final FromRouteProperties fromRouteProperties;
     private final ToRouteProperties toRouteProperties;
@@ -63,12 +57,9 @@ public class GatewayRoute extends RouteBuilder
         }
 
         from(fromRouteProperties.getUri())
-                    .unmarshal("rawDataFormat")
+                    .unmarshal("publicDataFormat")
                     .choice()
-                        .when(IS_PERMISSION_EVENT).bean("permissionEventEnricher")
-                        .when(IS_CONTENT_EVENT).bean("nodeEventEnricher")
-                        .when(IS_AUTHORITY_EVENT).bean("authorityEventEnricher")
-                        .when(IS_REPOSITORY_EVENT).bean("repositoryEventEnricher")
+                        .when(IS_EVENT_V1).bean("eventV1Enricher")
                         .end()
                     .marshal("publicDataFormat")
                     .to(toRouteProperties.getUri());

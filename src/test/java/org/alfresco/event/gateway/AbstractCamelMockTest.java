@@ -16,14 +16,14 @@
 package org.alfresco.event.gateway;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import org.alfresco.event.gateway.config.FromRouteProperties;
 import org.alfresco.event.gateway.config.ToRouteProperties;
+import org.alfresco.event.gateway.util.TestUtil;
 import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
 import org.apache.camel.Exchange;
 import org.apache.camel.ProducerTemplate;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.skyscreamer.jsonassert.Customization;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
+import org.skyscreamer.jsonassert.ValueMatcher;
 import org.skyscreamer.jsonassert.comparator.CustomComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,14 +47,26 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public abstract class AbstractCamelMockTest
 {
-    private static final String START_ROUTE = "direct:start";
-    private static final CustomComparator CUSTOM_JSON_COMPARATOR = new CustomComparator(JSONCompareMode.LENIENT,
-                new Customization("streamPosition", (obj1, obj2) -> true));
+
+    private static final ValueMatcher<Object> STREAM_POSITION_VALUE_MATCHER = (o1, o2) -> {
+        final String timestampRange = "{" + Long.toString(System.currentTimeMillis()).length() + "}";
+        final String regex = "[0-9]" + timestampRange + "-[A-Za-z0-9]{6}";
+        // Just check that the "actual" value (o1) and expected value (o2)
+        // are conforming to the defined regex. E.g: "1532903108328-ngh7oa"
+        return o1.toString().matches(regex) && o2.toString().matches(regex);
+    };
+
+    private static final CustomComparator CUSTOM_JSON_COMPARATOR = new CustomComparator(JSONCompareMode.STRICT,
+                new Customization("streamPosition", STREAM_POSITION_VALUE_MATCHER));
+
 
     @Autowired
     protected CamelContext camelContext;
 
-    @EndpointInject(uri = START_ROUTE)
+    @Autowired
+    private FromRouteProperties fromRouteProperties;
+
+    @Autowired
     private ProducerTemplate producer;
 
     private MockEndpoint mockEndpoint;
@@ -61,6 +74,8 @@ public abstract class AbstractCamelMockTest
     @Before
     public void setUp()
     {
+        // Set producer endpoint
+        producer.setDefaultEndpointUri(fromRouteProperties.getUri());
         // Construct MockEndpoint
         mockEndpoint = getMockEndpoint(getToRoute().getUri());
     }
@@ -72,73 +87,73 @@ public abstract class AbstractCamelMockTest
     }
 
     @Test
-    public void testRoute_NodeAddedEvent() throws Exception
+    public void testRoute_NodeAddedPublicEvent() throws Exception
     {
         // Set the expected number of messages
         mockEndpoint.expectedMessageCount(1);
 
         // Send the event
-        sendEvent(TestHelper.RAW_NODE_ADDED_EVENT);
+        sendEvent(getEventResourceAsString("public-nodeAddedEvent.json"));
         // Check the expected body
-        checkExpectedJsonBody(TestHelper.PUBLIC_NODE_ADDED_EVENT, getFirstBody(mockEndpoint));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-nodeAddedEvent.json"), getFirstBody(mockEndpoint));
 
         // Checks that the received message count is equal to the number of messages sent
         mockEndpoint.assertIsSatisfied();
     }
 
     @Test
-    public void testRoute_PermissionEvents() throws Exception
+    public void testRoute_PermissionPublicEvents() throws Exception
     {
         // Set the expected number of messages
         mockEndpoint.expectedMessageCount(3);
 
         // Send the events
-        sendEvent(TestHelper.RAW_PERMISSION_GRANTED_EVENT);
-        sendEvent(TestHelper.RAW_INHERIT_PERMISSION_DISABLED_EVENT);
-        sendEvent(TestHelper.RAW_INHERIT_PERMISSION_ENABLED_EVENT);
+        sendEvent(getEventResourceAsString("public-permissionGrantedEvent.json"));
+        sendEvent(getEventResourceAsString("public-inheritPermissionDisabledEvent.json"));
+        sendEvent(getEventResourceAsString("public-inheritPermissionEnabledEvent.json"));
 
         // Check the expected bodies
-        checkExpectedJsonBody(TestHelper.PUBLIC_PERMISSION_GRANTED_EVENT, getBody(mockEndpoint, 0));
-        checkExpectedJsonBody(TestHelper.Public_INHERIT_PERMISSION_DISABLED_EVENT, getBody(mockEndpoint, 1));
-        checkExpectedJsonBody(TestHelper.PUBLIC_INHERIT_PERMISSION_ENABLED_EVENT, getBody(mockEndpoint, 2));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-permissionGrantedEvent.json"), getBody(mockEndpoint, 0));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-inheritPermissionDisabledEvent.json"), getBody(mockEndpoint, 1));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-inheritPermissionEnabledEvent.json"), getBody(mockEndpoint, 2));
 
         // Checks that the received message count is equal to the number of messages sent
         mockEndpoint.assertIsSatisfied();
     }
 
     @Test
-    public void testRoute_AuthorityEvents() throws Exception
+    public void testRoute_AuthorityPublicEvents() throws Exception
     {
         // Set the expected number of messages
         mockEndpoint.expectedMessageCount(3);
 
         // Send the events
-        sendEvent(TestHelper.RAW_AUTHORITY_ADDED_TO_GROUP_EVENT);
-        sendEvent(TestHelper.RAW_AUTHORITY_REMOVED_FROM_GROUP_EVENT);
-        sendEvent(TestHelper.RAW_GROUP_DELETED_EVENT);
+        sendEvent(getEventResourceAsString("public-authorityAddedToGroupEvent.json"));
+        sendEvent(getEventResourceAsString("public-authorityRemovedFromGroupEvent.json"));
+        sendEvent(getEventResourceAsString("public-groupDeletedEvent.json"));
 
         // Check the expected bodies
-        checkExpectedJsonBody(TestHelper.PUBLIC_AUTHORITY_ADDED_TO_GROUP_EVENT, getBody(mockEndpoint, 0));
-        checkExpectedJsonBody(TestHelper.PUBLIC_AUTHORITY_REMOVED_FROM_GROUP_EVENT, getBody(mockEndpoint, 1));
-        checkExpectedJsonBody(TestHelper.PUBLIC_GROUP_DELETED_EVENT, getBody(mockEndpoint, 2));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-authorityAddedToGroupEvent.json"), getBody(mockEndpoint, 0));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-authorityRemovedFromGroupEvent.json"), getBody(mockEndpoint, 1));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-groupDeletedEvent.json"), getBody(mockEndpoint, 2));
 
         // Checks that the received message count is equal to the number of messages sent
         mockEndpoint.assertIsSatisfied();
     }
 
     @Test
-    public void testRoute_RepositoryEvents() throws Exception
+    public void testRoute_RepositoryPublicEvents() throws Exception
     {
         // Set the expected number of messages
         mockEndpoint.expectedMessageCount(2);
 
         // Send the events
-        sendEvent(TestHelper.RAW_TRANSACTION_COMMITTED_EVENT);
-        sendEvent(TestHelper.RAW_TRANSACTION_ROLLED_BACK_EVENT);
+        sendEvent(getEventResourceAsString("public-transactionCommittedEvent.json"));
+        sendEvent(getEventResourceAsString("public-transactionRolledBackEvent.json"));
 
         // Check the expected bodies
-        checkExpectedJsonBody(TestHelper.PUBLIC_TRANSACTION_COMMITTED_EVENT, getBody(mockEndpoint, 0));
-        checkExpectedJsonBody(TestHelper.PUBLIC_TRANSACTION_ROLLED_BACK_EVENT, getBody(mockEndpoint, 1));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-transactionCommittedEvent.json"), getBody(mockEndpoint, 0));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-transactionRolledBackEvent.json"), getBody(mockEndpoint, 1));
 
         // Checks that the received message count is equal to the number of messages sent
         mockEndpoint.assertIsSatisfied();
@@ -173,16 +188,12 @@ public abstract class AbstractCamelMockTest
 
     private void checkExpectedJsonBody(String expectedJsonBody, String actualJsonBody) throws Exception
     {
-        // Check the field exists, as we are going to ignore it
-        checkFieldExists(actualJsonBody, "streamPosition");
-        // Check expected body - We ignore the streamPosition field as it is dynamically generated
         JSONAssert.assertEquals(expectedJsonBody, actualJsonBody, CUSTOM_JSON_COMPARATOR);
     }
 
-    protected void checkFieldExists(String json, String field)
+    private String getEventResourceAsString(String eventFileName) throws Exception
     {
-        assertNotNull(json);
-        assertTrue("The field \"" + field + "\" does not exist.", json.indexOf(field) > 0);
+        return TestUtil.getResourceFileAsString("events/" + eventFileName);
     }
 
     protected abstract ToRouteProperties getToRoute();

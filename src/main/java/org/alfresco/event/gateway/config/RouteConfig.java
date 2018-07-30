@@ -16,16 +16,13 @@
 package org.alfresco.event.gateway.config;
 
 import org.alfresco.event.databind.EventObjectMapperFactory;
+import org.alfresco.event.model.EventV1;
 import org.apache.camel.component.jackson.JacksonDataFormat;
 import org.apache.camel.spi.DataFormat;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo.As;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectMapper.DefaultTyping;
-import com.fasterxml.jackson.databind.SerializationFeature;
 
 /**
  * @author Jamal Kaabi-Mofrad
@@ -34,26 +31,10 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 public class RouteConfig
 {
     public static final ObjectMapper PUBLIC_OBJECT_MAPPER = EventObjectMapperFactory.createInstance();
-    public static final ObjectMapper RAW_OBJECT_MAPPER = createRawEventObjectMapper();
 
     @Bean
     public DataFormat publicDataFormat()
     {
-        return new JacksonDataFormat(PUBLIC_OBJECT_MAPPER, Object.class);
-    }
-
-    @Bean
-    public DataFormat rawDataFormat()
-    {
-        return new JacksonDataFormat(RAW_OBJECT_MAPPER, Object.class);
-    }
-
-    private static ObjectMapper createRawEventObjectMapper()
-    {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        mapper.enableDefaultTyping(DefaultTyping.NON_FINAL, As.PROPERTY);
-        return mapper;
+        return new JacksonDataFormat(PUBLIC_OBJECT_MAPPER, EventV1.class);
     }
 }
