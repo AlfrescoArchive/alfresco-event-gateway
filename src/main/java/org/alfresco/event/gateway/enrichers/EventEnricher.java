@@ -16,8 +16,6 @@
 package org.alfresco.event.gateway.enrichers;
 
 import org.alfresco.event.model.EventV1;
-import org.alfresco.event.model.ResourceV1;
-import org.alfresco.events.types.Event;
 import org.apache.commons.lang3.RandomStringUtils;
 
 /**
@@ -25,10 +23,10 @@ import org.apache.commons.lang3.RandomStringUtils;
  *
  * @author Jamal Kaabi-Mofrad
  */
-public interface EventEnricher<T extends Event, R extends ResourceV1>
+public interface EventEnricher<T extends EventV1>
 {
 
-    EventV1<R> enrich(T event);
+    EventV1 enrich(T event);
 
     default String generateStreamPosition()
     {

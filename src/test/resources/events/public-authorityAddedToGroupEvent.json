@@ -1,0 +1,13 @@
+{
+  "schema": "org.alfresco.event.model.EventV1",
+  "type": "AUTHADDEDTOGROUP",
+  "streamPosition": null,
+  "principal": "admin",
+  "resource": {
+    "schema": "org.alfresco.event.model.AuthorityResourceV1",
+    "id": "86525ef4-6c7c-4e82-94f4-4687a736f392",
+    "primaryHierarchy": [],
+    "authorityName": "user2",
+    "parentGroup": "GROUP_TestGroup"
+  }
+}

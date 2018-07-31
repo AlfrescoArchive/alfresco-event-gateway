@@ -1,0 +1,11 @@
+{
+  "schema": "org.alfresco.event.model.EventV1",
+  "type": "TRANSACTION_COMMITTED",
+  "streamPosition": null,
+  "principal": "user1",
+  "resource": {
+    "schema": "org.alfresco.event.model.ResourceV1",
+    "id": "7bb2aa23-fbf0-40cb-96cc-7f100e7dacb3",
+    "primaryHierarchy": []
+  }
+}

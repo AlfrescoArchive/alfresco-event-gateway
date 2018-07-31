@@ -1,0 +1,11 @@
+{
+  "schema": "org.alfresco.event.model.EventV1",
+  "type": "TRANSACTION_ROLLBACK",
+  "streamPosition": "1532902795992-gg6vva",
+  "principal": "user1",
+  "resource": {
+    "schema": "org.alfresco.event.model.ResourceV1",
+    "id": "ba22f284-28ed-4b10-8ef6-17cc87298349",
+    "primaryHierarchy": []
+  }
+}
