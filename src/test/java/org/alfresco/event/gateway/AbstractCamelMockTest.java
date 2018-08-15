@@ -159,6 +159,24 @@ public abstract class AbstractCamelMockTest
         mockEndpoint.assertIsSatisfied();
     }
 
+    @Test
+    public void testRoute_ActivitiPublicEvents() throws Exception
+    {
+        // Set the expected number of messages
+        mockEndpoint.expectedMessageCount(2);
+
+        // Send the events
+        sendEvent(getEventResourceAsString("public-processStarted.json"));
+        sendEvent(getEventResourceAsString("public-taskAssigned.json"));
+
+        // Check the expected bodies
+        checkExpectedJsonBody(getEventResourceAsString("enriched-processStarted.json"), getBody(mockEndpoint, 0));
+        checkExpectedJsonBody(getEventResourceAsString("enriched-taskAssigned.json"), getBody(mockEndpoint, 1));
+
+        // Checks that the received message count is equal to the number of messages sent
+        mockEndpoint.assertIsSatisfied();
+    }
+
     protected void sendEvent(Object message)
     {
         assertNotNull(message);

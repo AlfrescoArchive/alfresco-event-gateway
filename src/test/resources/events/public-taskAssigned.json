@@ -1,0 +1,26 @@
+{
+  "schema": "org.alfresco.event.model.EventV1",
+  "type": "TASK_ASSIGNED",
+  "streamPosition": null,
+  "principal": null,
+  "resource": {
+    "schema": "org.alfresco.event.model.activiti.TaskResourceV1",
+    "id": "ed88df66-b0b2-4685-aca6-b7c4cad27752",
+    "appName": "default-app",
+    "serviceFullName": "rb-my-app",
+    "appVersion": "",
+    "serviceName": "rb-my-app",
+    "serviceVersion": "",
+    "serviceType": "runtime-bundle",
+    "entityId": "3688b0ad-9ee4-11e8-9079-0242ac110008",
+    "timestamp": 1534156841285,
+    "name": "Perform action",
+    "processDefinitionId": "SimpleProcess:1:49f47a41-9edd-11e8-9079-0242ac110008",
+    "processInstanceId": "3680c167-9ee4-11e8-9079-0242ac110008",
+    "priority": 50,
+    "status": "ASSIGNED",
+    "assignee": "hruser",
+    "createdDate": 1534156363940,
+    "claimedDate": 1534156841281
+  }
+}

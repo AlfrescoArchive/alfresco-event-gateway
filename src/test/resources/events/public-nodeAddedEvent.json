@@ -4,7 +4,7 @@
   "streamPosition": null,
   "principal": "user1",
   "resource": {
-    "schema": "org.alfresco.event.model.NodeResourceV1",
+    "schema": "org.alfresco.event.model.acs.NodeResourceV1",
     "id": "489ced52-9b4c-4d71-8c67-99b1d340c0e6",
     "primaryHierarchy": [
       {
