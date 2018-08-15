@@ -4,7 +4,7 @@
   "streamPosition": null,
   "principal": "user1",
   "resource": {
-    "schema": "org.alfresco.event.model.PermissionResourceV1",
+    "schema": "org.alfresco.event.model.acs.PermissionResourceV1",
     "id": "df47afbf-534c-47e3-83c6-6b485fe94414",
     "primaryHierarchy": [
       {
