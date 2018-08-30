@@ -43,3 +43,5 @@ The response to this request will contain the eventTopic name and brokerUri as j
 The developer can then use this information to connect their client to this Event Gateway topic.
 
 Note: The community version of the Event Gateway provides a single topic for all events.
+
+For an example of how to subscribe to the topic and start consuming events, see [CamelRouteConfig.java](https://github.com/Alfresco/alfresco-anaxes-hello-world-service/blob/master/src/main/java/org/alfresco/deployment/sample/activemq/CamelRouteConfig.java) in the **alfresco-anaxes-hello-world-service project**.
