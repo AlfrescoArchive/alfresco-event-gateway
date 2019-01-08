@@ -29,9 +29,9 @@
     </properties>
 
     <scm>
-        <connection>scm:git:https://www.github.com/alfresco/alfresco-event-gateway.git</connection>
-        <developerConnection>scm:git:https://www.github.com/alfresco/alfresco-event-gateway.git</developerConnection>
-        <url>https://www.github.com/alfresco/alfresco-event-gateway</url>
+        <connection>scm:git:https://github.com/Alfresco/alfresco-event-gateway.git</connection>
+        <developerConnection>scm:git:https://github.com/Alfresco/alfresco-event-gateway.git</developerConnection>
+        <url>https://github.com/Alfresco/alfresco-event-gateway</url>
         <tag>HEAD</tag>
     </scm>
 
