@@ -5,9 +5,8 @@
   "principal": "admin",
   "resource": {
     "schema": "org.alfresco.event.model.acs.AuthorityResourceV1",
-    "id": "65195ef4-6c7c-4e82-94f4-4687a736fa47",
+    "id": "GROUP_TestGroup",
     "primaryHierarchy": [],
-    "authorityName": "GROUP_TestGroup",
     "cascade": true
   }
 }

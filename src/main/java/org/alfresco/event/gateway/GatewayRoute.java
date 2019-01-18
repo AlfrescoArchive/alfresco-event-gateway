@@ -59,9 +59,7 @@ public class GatewayRoute extends RouteBuilder
         from(fromRouteProperties.getUri())
                     .unmarshal("publicDataFormat")
                     .choice()
-                        .when(IS_EVENT_V1).bean("eventV1Enricher")
-                        .end()
-                    .marshal("publicDataFormat")
-                    .to(toRouteProperties.getUri());
+                        .when(IS_EVENT_V1).bean("eventV1Enricher").marshal("publicDataFormat").to(toRouteProperties.getUri())
+                        .end();
     }
 }

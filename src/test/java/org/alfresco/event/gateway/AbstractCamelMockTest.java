@@ -142,7 +142,7 @@ public abstract class AbstractCamelMockTest
     }
 
     @Test
-    public void testRoute_RepositoryPublicEvents() throws Exception
+    public void testRoute_TransactionPublicEvents() throws Exception
     {
         // Set the expected number of messages
         mockEndpoint.expectedMessageCount(2);
