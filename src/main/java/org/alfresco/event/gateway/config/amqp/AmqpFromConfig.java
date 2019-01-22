@@ -17,6 +17,7 @@ package org.alfresco.event.gateway.config.amqp;
 
 import org.alfresco.event.gateway.config.FromRouteProperties;
 import org.apache.camel.component.amqp.AMQPComponent;
+import org.apache.qpid.jms.JmsConnectionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -44,8 +45,24 @@ public class AmqpFromConfig
     @Bean
     public AMQPComponent amqpFromConnection()
     {
-        return AMQPComponentFactory.getAmqpComponent(properties.getUrl(),
-                    properties.getUsername(), properties.getPassword());
+        JmsConnectionFactory jmsConnectionFactory = jmsConnectionFactory();
+        return new AMQPComponent(jmsConnectionFactory);
+    }
+
+    @Bean
+    public AMQPComponent amqpFromCachedConnection()
+    {
+        JmsConnectionFactory jmsConnectionFactory = jmsConnectionFactory();
+        return AMQPComponentFactory.getAmqpComponentWithCaching(jmsConnectionFactory);
+    }
+
+    @Bean
+    public JmsConnectionFactory jmsConnectionFactory()
+    {
+        return AMQPComponentFactory.getJmsConnectionFactory(
+                    properties.getUrl(),
+                    properties.getUsername(),
+                    properties.getPassword());
     }
 
     @Bean
