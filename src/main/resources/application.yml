@@ -8,7 +8,9 @@ messaging:
       url: amqp://${messaging.from.activemq.addresses}
       fromRoute:
         topicName: alfresco.events.source
-        uri: amqpFromConnection:topic:${messaging.from.activemq.fromRoute.topicName}
+        # Available connections: amqpFromConnection|amqpFromCachedConnection
+        # Use amqpFromConnection for durable topic subscription and amqpFromCachedConnection for everything else (E.g. Virtual Topics)
+        uri: amqpFromConnection:topic:${messaging.from.activemq.fromRoute.topicName}?clientId=cae3bae3-event-gateway&durableSubscriptionName=event-gateway
 
 
   to:
@@ -20,4 +22,5 @@ messaging:
       url: amqp://${messaging.to.activemq.addresses}
       toRoute:
         topicName: alfresco.events.allEvents
-        uri: amqpToConnection:topic:${messaging.to.activemq.toRoute.topicName}
+        # Only available connection: amqpToCachedConnection
+        uri: amqpToCachedConnection:topic:${messaging.to.activemq.toRoute.topicName}

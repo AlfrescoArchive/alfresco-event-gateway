@@ -27,13 +27,18 @@ import org.springframework.jms.connection.CachingConnectionFactory;
  */
 public class AMQPComponentFactory
 {
-    public static AMQPComponent getAmqpComponent(String url, String username, String password)
+    public static JmsConnectionFactory getJmsConnectionFactory(String url, String username, String password)
     {
         JmsConnectionFactory jmsConnectionFactory = new JmsConnectionFactory();
         jmsConnectionFactory.setRemoteURI(url);
-        jmsConnectionFactory.setUsername(username);
-        jmsConnectionFactory.setPassword(password);
+        jmsConnectionFactory.setUsername(getNonEmptyStringOrNull(username));
+        jmsConnectionFactory.setPassword(getNonEmptyStringOrNull(password));
 
+        return jmsConnectionFactory;
+    }
+
+    public static AMQPComponent getAmqpComponentWithCaching(JmsConnectionFactory jmsConnectionFactory)
+    {
         CachingConnectionFactory cachingConnectionFactory = new CachingConnectionFactory();
         cachingConnectionFactory.setTargetConnectionFactory(jmsConnectionFactory);
 
@@ -42,5 +47,14 @@ public class AMQPComponentFactory
         jmsConfiguration.setCacheLevelName("CACHE_CONSUMER");
 
         return new AMQPComponent(jmsConfiguration);
+    }
+
+    private static String getNonEmptyStringOrNull(String str)
+    {
+        if (str == null || str.isEmpty())
+        {
+            return null;
+        }
+        return str;
     }
 }
