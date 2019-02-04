@@ -1,8 +1,3 @@
-# alfresco-event-gateway
-Alfresco Event Gateway
-
-The Alfresco Event Gateway is a component of Alfresco Digital Business Platform.
-
 # Configuring the Event Gateway
 
 ## External DNS
