@@ -38,3 +38,9 @@ readinessProbe:
   periodSeconds: 10
   successThreshold: 1
   timeoutSeconds: 1
+
+global:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
